@@ -13,6 +13,10 @@ const assets = (state = {}, action) => {
       })
     case 'DELETE_LIABILITY':
       return omit(state, action.itemId)
+    case 'RENAME_LIABILITY':
+      return Object.assign({}, state, {
+        [action.itemId]: asset(state[action.itemId], action)
+      })
     default: return state
   }
 }
@@ -42,6 +46,10 @@ const asset = (state = {}, action) => {
           created: true
         }]
       }
+    case 'RENAME_LIABILITY':
+      return Object.assign({}, state, {
+        name: action.name
+      })
     default: return state
   }
 }
