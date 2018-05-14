@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4'
+import omit from 'lodash/omit'
 
 const assets = (state = {}, action) => {
   switch (action.type) {

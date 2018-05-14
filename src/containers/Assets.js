@@ -7,6 +7,7 @@ import AccountsHeader from '../components/accountsHeader'
 import AccountList from '../components/AccountList'
 import Modal from 'react-native-modal'
 import styles from '../components/Account/styles'
+import addAccountStyles from '../components/AddAccount/styles'
 import { addAccountAction } from '../actions/accounts'
 
 const uiTheme = {
@@ -76,15 +77,14 @@ class AssetsContainer extends Component {
           onBackdropPress={this.toggleModal}
           onBackButtonPress={this.toggleModal}
           isVisible={this.state.renderModal}>
-          <View style={{ backgroundColor: COLOR.white }}>
+          <View style={ addAccountStyles.modalContainer }>
             <Subheader text="Add Account"
               style={{ 
-                container: {
-                  paddingTop: 40,
-                  paddingBottom: 40,
-                  backgroundColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                },
-                text: { textAlign: 'center', fontSize: 22, color: COLOR.white } 
+                container: [
+                  addAccountStyles.modalHeaderContainer,
+                  isAssets ? addAccountStyles.modalHeaderContainerAssets : addAccountStyles.modalHeaderContainerLiabilities
+                ],
+                text: addAccountStyles.modalHeaderText 
               }} />
             <Divider />
 
@@ -120,17 +120,11 @@ class AssetsContainer extends Component {
 
             <Button accent text="Add Account" 
               style={{
-                container: {
-                  padding: 40,
-                  margin: 20
-                },
-                text: {
-                  padding: 10,
-                  fontSize: 24,
-                  borderBottomWidth: 1,
-                  borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                  color: isAssets ? COLOR.teal500 : COLOR.red400
-                }
+                container: addAccountStyles.submitButtonContainer,
+                text: [
+                  addAccountStyles.submitButtonText,
+                  isAssets ? addAccountStyles.submitButtonTextAssets : addAccountStyles.submitButtonTextLiabilities
+                ]
               }}
               onPress={this.addAccount.bind(this, isAssets)} />
           </View>

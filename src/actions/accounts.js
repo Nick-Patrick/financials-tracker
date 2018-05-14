@@ -16,6 +16,13 @@ const accounts = {
       itemId: account.id,
       amount: account.amount
     }
+  },
+
+  deleteAccountAction (isAssets, account) {
+    return {
+      type: isAssets ? 'DELETE_ASSET' : 'DELETE_LIABILITY',
+      itemId: account.id
+    }
   }
 }
 

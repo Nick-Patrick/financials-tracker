@@ -25,7 +25,7 @@ class accountsHeader extends Component {
 
     return (
       <View style={[ 
-      styles.container, 
+        styles.container, 
         isAssets ? styles.containerAssets : styles.containerLiabilities 
         ]}>
         <View style={ styles.totalContainer }>
@@ -46,14 +46,14 @@ class accountsHeader extends Component {
           ]}>
           <View style={ styles.percentageAmountContainer }>
             <Subheader text="+5.4%" style={{
-              container: styles.percentageAmountTextContainer,
+                container: styles.percentageAmountTextContainer,
                 text: styles.percentageAmountText
               }}
             />
           </View>
           <View style={{flex: 1}}>
             <Subheader text="Past Month" style={{
-              container: styles.percentageTimePeriodContainer,
+                container: styles.percentageTimePeriodContainer,
                 text: styles.percentageTimePeriodText
               }}
             />

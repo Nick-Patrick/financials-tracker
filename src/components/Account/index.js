@@ -6,7 +6,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
-import { updateAccountAction } from '../../actions/accounts'
+import { updateAccountAction, deleteAccountAction } from '../../actions/accounts'
 import { LineChart } from 'react-native-svg-charts'
 import { Circle, Path } from 'react-native-svg'
 
@@ -21,8 +21,19 @@ class Account extends Component {
     super(props)
     this.state = {
       renderModal: false,
+      renderDeleteModal: false,
       amountText: null,
       amountInputError: false
+    }
+
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+  }
+
+  onNavigatorEvent (event) { 
+    if (event.type == 'NavBarButtonPress') {
+      if (event.id == 'remove') { 
+        this.toggleDeleteModal()
+      }
     }
   }
 
@@ -61,7 +72,7 @@ class Account extends Component {
     )
   }
 
-  renderGraph(accountHistory, isAssets) {
+  renderGraph(accountHistory = [], isAssets) {
     let data = []
     accountHistory.map(account => data.push(account.amount))
 
@@ -135,7 +146,7 @@ class Account extends Component {
     )
   }
 
-  renderPriceHistory(history) {
+  renderPriceHistory(history = []) {
     return (
       <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
         <View style={{ flexDirection: 'row' }}>
@@ -216,6 +227,55 @@ class Account extends Component {
     })
   }
 
+  toggleDeleteModal = () => {
+    this.setState({ renderDeleteModal: !this.state.renderDeleteModal})
+  }
+
+  renderDeleteModal(account, isAssets) {
+    return (
+      <View>
+        <Modal 
+          useNativeDriver={true}
+          onBackdropPress={this.toggleDeleteModal}
+          onBackButtonPress={this.toggleDeleteModal}
+          isVisible={this.state.renderDeleteModal}>
+          <View style={{ backgroundColor: COLOR.white }}>
+            <Subheader text="Are you sure?"
+             style={{ 
+                container: [
+                  styles.modalSubheaderContainer,
+                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
+                ],
+                text: styles.modalSubheaderText 
+              }} />
+              <Divider />
+              <Button accent text="Delete Account" 
+                style={{
+                  container: {
+                    padding: 40,
+                    margin: 20
+                  },
+                  text: {
+                    padding: 10,
+                    fontSize: 24,
+                    borderBottomWidth: 1,
+                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
+                    color: isAssets ? COLOR.teal500 : COLOR.red400
+                  }
+                }}
+              onPress={this.deleteAccount.bind(this, account, isAssets)} />
+          </View>
+        </Modal>
+      </View>
+    )
+  }
+
+  deleteAccount(account, isAssets) {
+    this.toggleModal()
+    this.props.navigator.pop()
+    this.props.dispatch(deleteAccountAction(isAssets, account))
+  }
+
   renderUpdateModal(account, isAssets) {
     return (
       <View>
@@ -227,12 +287,11 @@ class Account extends Component {
           <View style={{ backgroundColor: COLOR.white }}>
             <Subheader text="Update Account"
               style={{ 
-                container: {
-                  paddingTop: 40,
-                  paddingBottom: 40,
-                  backgroundColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                },
-                text: { textAlign: 'center', fontSize: 22, color: COLOR.white } 
+                container: [
+                  styles.modalSubheaderContainer,
+                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
+                ],
+                text: styles.modalSubheaderText 
               }} />
             <Divider />
             <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(account.amount).toFixed(2)}` }</FormLabel>
@@ -272,7 +331,7 @@ class Account extends Component {
   }
 
   render () {
-    const { currentAccount, isAssets } = this.props 
+    const { currentAccount = {}, isAssets } = this.props 
     
     return (
       <ThemeProvider uiTheme = {uiTheme}>
@@ -283,6 +342,7 @@ class Account extends Component {
             { this.renderUpdateAccount(currentAccount, isAssets)}
             { this.renderPriceHistory(currentAccount.history) }
             { this.renderUpdateModal(currentAccount, isAssets) }
+            { this.renderDeleteModal(currentAccount, isAssets) }
           </View>
         </ScrollView>
       </ThemeProvider>
