@@ -125,7 +125,7 @@ class Account extends Component {
     )
   }
 
-  getAccountDifference(oldAccount, newAccount) {
+  getAccountDifference(oldAccount, newAccount, isAssets) {
     if (!oldAccount || !newAccount) return null
     const difference = newAccount.amount - oldAccount.amount
 
@@ -133,25 +133,24 @@ class Account extends Component {
       <Subheader
         style={{
           container: {
-            marginLeft: -20,
-            flex: 1,
+            flex: 3,
             height: 20
           },
           text: {
             lineHeight: 20,
             fontWeight: '500',
-            color: difference > 0 ? COLOR.teal300 : COLOR.red400
+            color: isAssets ? (difference > 0 ? COLOR.teal300 : COLOR.red400) : (difference < 0 ? COLOR.teal300 : COLOR.red400)
           }
         }} text={difference > 0 ? `(+${parseFloat(difference).toFixed(2)})` : difference < 0 ? `(${parseFloat(difference).toFixed(2)})` : null} />
     )
   }
 
-  renderPriceHistory(history = []) {
+  renderPriceHistory(history = [], isAssets) {
     return (
       <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
         <View style={{ flexDirection: 'row' }}>
           <Icon name="history" style={{ paddingTop: 12, margin: 0, paddingLeft: 10 }}/>
-          <Subheader text="Account History" style={{ container: { marginLeft: -10 }, text: { fontSize: 18 } }}/>
+          <Subheader text={`${isAssets ? 'Asset' : 'Liability'} History`} style={{ container: { marginLeft: -10 }, text: { fontSize: 18 } }}/>
         </View>
         <Divider />
 
@@ -163,9 +162,9 @@ class Account extends Component {
               <View style={{ flex: 1, alignSelf: 'stretch', marginBottom: 1, paddingTop: 10, paddingBottom: 10, borderColor: COLOR.teal50, borderBottomWidth: 1}}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'space-around' }}>
-                      <Subheader text={account.created ? 'Account Created' : `Value Updated`} style={{ container: { height: 20, flex: 1 }, text: { lineHeight: 20 } }}/>
-                      { this.getAccountDifference(previousAccount, account) }
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1 }}>
+                      <Subheader text={account.created ? 'Initial Balance' : `Balance Updated`} style={{ container: { height: 20, flex: 4 }, text: { lineHeight: 20 } }}/>
+                      { this.getAccountDifference(previousAccount, account, isAssets) }
                     </View>
                     <Subheader text={moment(account.updated).format('MMM D YYYY')} style={{ container: { height: 20 }, text: { lineHeight: 20, fontSize: 10, fontWeight: '200', color: COLOR.grey400 } }}/>
                   </View>
@@ -185,7 +184,7 @@ class Account extends Component {
   renderUpdateAccount(account, isAssets) {
     return (
       <View style={{ paddingTop: 20, paddingBottom: 10 }}>
-        <Button raised text="Update Account" style={{
+        <Button raised text={`Update ${isAssets ? 'asset' : 'Liability'}`} style={{
           container: {
             backgroundColor: isAssets ? COLOR.teal500 : COLOR.red400,
             padding: 30, 
@@ -249,7 +248,7 @@ class Account extends Component {
                 text: styles.modalSubheaderText 
               }} />
               <Divider />
-              <Button accent text="Delete Account" 
+              <Button accent text={`Delete ${isAssets ? 'Asset' : 'Liability'}`} 
                 style={{
                   container: {
                     padding: 40,
@@ -285,7 +284,7 @@ class Account extends Component {
           onBackButtonPress={this.toggleModal}
           isVisible={this.state.renderModal}>
           <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text="Update Account"
+            <Subheader text={`Update ${isAssets ? 'Asset' : 'Liability'}`}
               style={{ 
                 container: [
                   styles.modalSubheaderContainer,
@@ -309,7 +308,7 @@ class Account extends Component {
               : null
             }
 
-            <Button accent text="Update Account" 
+            <Button accent text={`Update ${isAssets ? 'Asset' : 'Liability'}`} 
               style={{
                 container: {
                   padding: 40,
@@ -340,7 +339,7 @@ class Account extends Component {
             { this.renderAmount(currentAccount.amount, isAssets) }
             { this.renderGraph(currentAccount.history, isAssets) }
             { this.renderUpdateAccount(currentAccount, isAssets)}
-            { this.renderPriceHistory(currentAccount.history) }
+            { this.renderPriceHistory(currentAccount.history, isAssets) }
             { this.renderUpdateModal(currentAccount, isAssets) }
             { this.renderDeleteModal(currentAccount, isAssets) }
           </View>

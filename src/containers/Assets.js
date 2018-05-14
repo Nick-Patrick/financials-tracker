@@ -78,7 +78,7 @@ class AssetsContainer extends Component {
           onBackButtonPress={this.toggleModal}
           isVisible={this.state.renderModal}>
           <View style={ addAccountStyles.modalContainer }>
-            <Subheader text="Add Account"
+            <Subheader text="Add Asset"
               style={{ 
                 container: [
                   addAccountStyles.modalHeaderContainer,
@@ -90,7 +90,7 @@ class AssetsContainer extends Component {
 
             <FormLabel
               labelStyle={styles.labelText}>
-                Account Name
+                Asset Name
             </FormLabel>
             <FormInput 
               onChangeText={ text => this.state.nameText = text }
@@ -99,13 +99,13 @@ class AssetsContainer extends Component {
               inputStyle={styles.textInput}
             />
             { this.state.nameInputError 
-              ? <FormValidationMessage>Please enter the name of this {isAssets ? 'asset' : 'liability'} account</FormValidationMessage> 
+              ? <FormValidationMessage>Please enter the name of this {isAssets ? 'asset' : 'liability'}</FormValidationMessage> 
               : null 
             }
 
             <FormLabel
               labelStyle={styles.labelText}>
-                Account Amount
+                Asset Amount
             </FormLabel>
             <FormInput 
               keyboardType='numeric'
@@ -114,11 +114,11 @@ class AssetsContainer extends Component {
               inputStyle={styles.textInput}
             />
             { this.state.amountInputError
-              ? <FormValidationMessage>Please enter the current value of this {isAssets ? 'asset' : 'liability'} account</FormValidationMessage>
+              ? <FormValidationMessage>Please enter the current value of this {isAssets ? 'asset' : 'liability'}</FormValidationMessage>
               : null
             }
 
-            <Button accent text="Add Account" 
+            <Button accent text="Add Asset" 
               style={{
                 container: addAccountStyles.submitButtonContainer,
                 text: [
