@@ -11,6 +11,14 @@ const styles = StyleSheet.create({
     fontSize: 22
   },
 
+  accountNameInput: {
+    fontSize: 24
+  },
+
+  accountNameContainer: {
+    paddingTop: 20
+  },
+
   modalSubheaderContainer: {
     paddingTop: 40,
     paddingBottom: 40

@@ -9,8 +9,11 @@ class AccountContainer extends Component {
 
   static navigatorButtons = {
     rightButtons: [{
-      icon: require('../images/icons8-trash-96.png'),
+      icon: require('../images/ic_delete.png'),
       id: 'remove'
+    }, {
+      icon: require('../images/ic_edit.png'),
+      id: 'edit'
     }]
   }
 

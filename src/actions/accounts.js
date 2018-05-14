@@ -23,7 +23,16 @@ const accounts = {
       type: isAssets ? 'DELETE_ASSET' : 'DELETE_LIABILITY',
       itemId: account.id
     }
+  },
+
+  renameAccountAction (isAssets, account, newName) {
+    return {
+      type: isAssets ? 'RENAME_ASSET' : 'RENAME_LIABILITY',
+      itemId: account.id,
+      name: newName
+    }
   }
+
 }
 
 module.exports = accounts

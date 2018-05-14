@@ -6,7 +6,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
-import { updateAccountAction, deleteAccountAction } from '../../actions/accounts'
+import { updateAccountAction, deleteAccountAction, renameAccountAction } from '../../actions/accounts'
 import { LineChart } from 'react-native-svg-charts'
 import { Circle, Path } from 'react-native-svg'
 
@@ -22,6 +22,9 @@ class Account extends Component {
     this.state = {
       renderModal: false,
       renderDeleteModal: false,
+      renderRenameModal: false,
+      accountNameText: null,
+      accountNameError: false,
       amountText: null,
       amountInputError: false
     }
@@ -31,9 +34,8 @@ class Account extends Component {
 
   onNavigatorEvent (event) { 
     if (event.type == 'NavBarButtonPress') {
-      if (event.id == 'remove') { 
-        this.toggleDeleteModal()
-      }
+      if (event.id == 'remove') this.toggleDeleteModal()
+      if (event.id == 'edit') this.toggleRenameModal()
     }
   }
 
@@ -141,8 +143,14 @@ class Account extends Component {
             fontWeight: '500',
             color: isAssets ? (difference > 0 ? COLOR.teal300 : COLOR.red400) : (difference < 0 ? COLOR.teal300 : COLOR.red400)
           }
-        }} text={difference > 0 ? `(+${parseFloat(difference).toFixed(2)})` : difference < 0 ? `(${parseFloat(difference).toFixed(2)})` : null} />
+        }} 
+        text={difference > 0 ? `(+${parseFloat(difference).toFixed(2)})` : difference < 0 ? `(${parseFloat(difference).toFixed(2)})` : null} 
+      />
     )
+  }
+
+  updateAccountHistory(account) {
+
   }
 
   renderPriceHistory(history = [], isAssets) {
@@ -158,7 +166,7 @@ class Account extends Component {
           const previousAccount = history[index + 1]
 
           return (
-            <TouchableHighlight key={index}>
+            <TouchableHighlight underlayColor={COLOR.grey200} key={index} onPress={this.updateAccountHistory.bind(this, account)}>
               <View style={{ flex: 1, alignSelf: 'stretch', marginBottom: 1, paddingTop: 10, paddingBottom: 10, borderColor: COLOR.teal50, borderBottomWidth: 1}}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <View style={{ flex: 1 }}>
@@ -226,8 +234,14 @@ class Account extends Component {
     })
   }
 
-  toggleDeleteModal = () => {
-    this.setState({ renderDeleteModal: !this.state.renderDeleteModal})
+  toggleDeleteModal = () => this.setState({ renderDeleteModal: !this.state.renderDeleteModal})
+
+  toggleRenameModal = () => {
+    this.setState({ 
+      renderRenameModal: !this.state.renderRenameModal,
+      accountNameText: null,
+      accountNameError: false
+    })
   }
 
   renderDeleteModal(account, isAssets) {
@@ -269,10 +283,80 @@ class Account extends Component {
     )
   }
 
+  renderRenameModal(account, isAssets) {
+    return (
+      <View>
+        <Modal 
+          useNativeDriver={true}
+          onBackdropPress={this.toggleRenameModal}
+          onBackButtonPress={this.toggleRenameModal}
+          isVisible={this.state.renderRenameModal}>
+          <View style={{ backgroundColor: COLOR.white }}>
+            <Subheader text={`Edit`}
+              style={{ 
+                container: [
+                  styles.modalSubheaderContainer,
+                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
+                ],
+                text: styles.modalSubheaderText 
+              }} />
+              <Divider />
+              <FormLabel labelStyle={styles.labelText}>
+                New Name:
+              </FormLabel>
+              <FormInput 
+                onChangeText={text => this.state.accountNameText = text }
+                ref={ input => this.accountNameInput = input }
+                inputStyle={styles.accountNameInput}
+                containerStyle={styles.accountNameContainer}
+              />
+              { this.state.accountNameError
+                ? <FormValidationMessage>Please enter a new name</FormValidationMessage>
+                : null
+              }
+              <Button accent text={`Rename ${isAssets ? 'Asset' : 'Liability'}`} 
+                style={{
+                  container: {
+                    padding: 40,
+                    margin: 20
+                  },
+                  text: {
+                    padding: 10,
+                    fontSize: 24,
+                    borderBottomWidth: 1,
+                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
+                    color: isAssets ? COLOR.teal500 : COLOR.red400
+                  }
+                }}
+              onPress={this.renameAccount.bind(this, account, isAssets)} />
+          </View>
+        </Modal>
+      </View>
+    )
+  }
+
   deleteAccount(account, isAssets) {
     this.toggleModal()
     this.props.navigator.pop()
     this.props.dispatch(deleteAccountAction(isAssets, account))
+  }
+
+  renameAccount(account, isAssets) {
+    this.setState({
+      accountNameError: Boolean(!this.state.accountNameText || !this.state.accountNameText.length > 0)
+    }, e => {
+      if (!this.state.accountNameError) this.accountNameInput.shake()
+
+      if (!this.state.accountNameError) {
+        this.props.dispatch(renameAccountAction(isAssets, account, this.state.accountNameText))
+        this.props.navigator.setTitle({
+          title: this.state.accountNameText
+        })
+        return this.toggleRenameModal()
+      }
+    }) 
+    
+    
   }
 
   renderUpdateModal(account, isAssets) {
@@ -342,6 +426,7 @@ class Account extends Component {
             { this.renderPriceHistory(currentAccount.history, isAssets) }
             { this.renderUpdateModal(currentAccount, isAssets) }
             { this.renderDeleteModal(currentAccount, isAssets) }
+            { this.renderRenameModal(currentAccount, isAssets) }
           </View>
         </ScrollView>
       </ThemeProvider>
