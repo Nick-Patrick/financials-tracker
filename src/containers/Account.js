@@ -14,9 +14,12 @@ class AccountContainer extends Component {
     }]
   }
 
-  render () { 
+  render () {    
     return (
-      <Account {...this.props} currentAccount={ this.props.assets[this.props.account.id] } />
+      <Account 
+        {...this.props} 
+        currentAccount={ this.props.isAssets ? this.props.assets[this.props.account.id] : this.props.liabilities[this.props.account.id] } 
+      />
     )
   }
 }

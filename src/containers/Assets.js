@@ -5,7 +5,6 @@ import { FormLabel, FormInput, FormValidationMessage } from 'react-native-elemen
 import { connect } from 'react-redux'
 import AccountsHeader from '../components/accountsHeader'
 import AccountList from '../components/AccountList'
-import AddAccount from '../components/AddAccount'
 import Modal from 'react-native-modal'
 import styles from '../components/Account/styles'
 import { addAccountAction } from '../actions/accounts'
@@ -100,7 +99,7 @@ class AssetsContainer extends Component {
               inputStyle={styles.textInput}
             />
             { this.state.nameInputError 
-              ? <FormValidationMessage>Please enter the name of this {isAsset ? 'asset' : 'liability'} account</FormValidationMessage> 
+              ? <FormValidationMessage>Please enter the name of this {isAssets ? 'asset' : 'liability'} account</FormValidationMessage> 
               : null 
             }
 
@@ -115,7 +114,7 @@ class AssetsContainer extends Component {
               inputStyle={styles.textInput}
             />
             { this.state.amountInputError
-              ? <FormValidationMessage>Please enter the current value of this {isAsset ? 'asset' : 'liability'} account</FormValidationMessage>
+              ? <FormValidationMessage>Please enter the current value of this {isAssets ? 'asset' : 'liability'} account</FormValidationMessage>
               : null
             }
 

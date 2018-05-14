@@ -17,7 +17,7 @@ class AccountList extends Component {
             account.id = accountKey
 
             return (
-              <TouchableHighlight key={accountKey} onPress={this.goToAccount.bind(this, account, accountType)}>
+              <TouchableHighlight key={accountKey} onPress={this.goToAccount.bind(this, account, isAssets)}>
                 <View style={{ borderColor: COLOR.teal50, borderBottomWidth: 1, borderTopWidth: 1, backgroundColor: COLOR.white, flex: 1, flexDirection: 'row' }}>
                   <View style={{ flex: 5, flexDirection: 'column', justifyContent: 'space-around' }}>
                     <View style={{ flex: 4 }}>
@@ -43,7 +43,7 @@ class AccountList extends Component {
     )
   }
 
-  goToAccount(account, accountType) {
+  goToAccount(account, isAssets) {
     this.props.navigator.push({
       screen: 'networth.Account',
       title: account.name,
@@ -52,7 +52,7 @@ class AccountList extends Component {
       animationType: 'slide-horizontal',
       passProps: {
         account,
-        accountType
+        isAssets
       }
     })
   }

@@ -7,6 +7,8 @@ import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
 import { updateAccountAction } from '../../actions/accounts'
+import { LineChart } from 'react-native-svg-charts'
+import { Circle, Path } from 'react-native-svg'
 
 let uiTheme = {
   palette: {
@@ -30,7 +32,7 @@ class Account extends Component {
         flex: 1, 
         backgroundColor: isAssets ? COLOR.teal800 : COLOR.red600, 
         alignSelf: 'stretch', 
-        padding: 15
+        paddingTop: 15
       }}>
         <Avatar
           xlarge
@@ -55,6 +57,59 @@ class Account extends Component {
             }
           }}
         />
+      </View>
+    )
+  }
+
+  renderGraph(accountHistory, isAssets) {
+    let data = []
+    accountHistory.map(account => data.push(account.amount))
+
+    const contentInset = { top: 10, bottom: 10 }
+
+    const Decorator = ({ x, y, data }) => {
+      return data.map((value, index) => (
+        <Circle
+          key={ index }
+          cx={ x(index) }
+          cy={ y(value) }
+          r={ 2 }
+          stroke={ COLOR.white }
+          fill={ COLOR.white }
+        />
+      ))
+    }
+
+
+    const Shadow = ({ line }) => (
+      <Path
+        key={'shadow'}
+        y={2}
+        d={line}
+        fill={'none'}
+        strokeWidth={4}
+        stroke={'rgba(0, 0, 0, 0.2)'}
+      />
+    )
+
+    return (
+      <View style={{ 
+        height: 100, 
+        flexDirection: 'row',
+        backgroundColor: isAssets ? COLOR.teal800 : COLOR.red600,
+        alignSelf: 'stretch',
+        padding: 10
+      }}>
+        <LineChart
+          animate={true}
+          animationDuration={500}
+          style={{ flex: 1 }}
+          data={ data.reverse() }
+          svg={{ stroke: COLOR.white }}
+          contentInset={contentInset}>
+          <Shadow />
+          <Decorator/>
+        </LineChart>
       </View>
     )
   }
@@ -217,14 +272,14 @@ class Account extends Component {
   }
 
   render () {
-    const { currentAccount, accountType } = this.props 
-    const isAssets = accountType === 'assets'
+    const { currentAccount, isAssets } = this.props 
     
     return (
       <ThemeProvider uiTheme = {uiTheme}>
         <ScrollView>
           <View style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
             { this.renderAmount(currentAccount.amount, isAssets) }
+            { this.renderGraph(currentAccount.history, isAssets) }
             { this.renderUpdateAccount(currentAccount, isAssets)}
             { this.renderPriceHistory(currentAccount.history) }
             { this.renderUpdateModal(currentAccount, isAssets) }

@@ -11,7 +11,6 @@ const accounts = {
   },
 
   updateAccountAction (isAssets, account) {
-    console.log('action', isAssets, account.id, account.amount)
     return {
       type: isAssets ? 'UPDATE_ASSET' : 'UPDATE_LIABILITY',
       itemId: account.id,

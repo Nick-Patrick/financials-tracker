@@ -17,7 +17,6 @@ const assets = (state = {}, action) => {
 }
 
 const asset = (state = {}, action) => {
-  console.log('type --> ', action.type)
   switch (action.type) {
     case 'UPDATE_ASSET':
       return Object.assign({}, state, {
