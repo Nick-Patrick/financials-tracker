@@ -18,6 +18,8 @@ class AccountContainer extends Component {
   }
 
   render () {    
+    if (!this.props.account.id) return null
+    
     return (
       <Account 
         {...this.props} 

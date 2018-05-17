@@ -21,7 +21,8 @@ const styles = StyleSheet.create({
 
   modalSubheaderContainer: {
     paddingTop: 40,
-    paddingBottom: 40
+    paddingBottom: 40,
+    backgroundColor: COLOR.grey600
   },
 
   modalSubheaderContainerAssets: {

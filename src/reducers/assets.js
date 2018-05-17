@@ -17,6 +17,10 @@ const assets = (state = {}, action) => {
       return Object.assign({}, state, {
         [action.itemId]: asset(state[action.itemId], action)
       })
+    case 'UPDATE_ASSET_HISTORY':
+      return Object.assign({}, state, {
+        [action.itemId]: asset(state[action.itemId], action)
+      })
     default: return state
   }
 }
@@ -29,7 +33,7 @@ const asset = (state = {}, action) => {
         updated: new Date(),
         history: [].concat([{
           id: uuid(),
-          updated: new Date(),
+          updated: action.date,
           amount: action.amount,
           created: false
         }], state.history)
@@ -49,6 +53,14 @@ const asset = (state = {}, action) => {
     case 'RENAME_ASSET':
       return Object.assign({}, state, {
         name: action.name
+      })
+    case 'UPDATE_ASSET_HISTORY':
+      return Object.assign({}, state, {
+        history: state.history.map(account => {
+          if (account.id === action.historyId) return { id: uuid(), amount: action.amount, updated: action.date }
+
+          return account
+        })
       })
     default: return state
   }

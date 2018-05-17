@@ -29,7 +29,7 @@ const asset = (state = {}, action) => {
         updated: new Date(),
         history: [].concat([{
           id: uuid(),
-          updated: new Date(),
+          updated: action.date,
           amount: action.amount,
           created: false
         }], state.history)

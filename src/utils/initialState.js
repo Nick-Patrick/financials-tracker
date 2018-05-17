@@ -1,3 +1,5 @@
+import uuid from 'uuid/v4'
+
 const initialState = {
   assets: {
     1: {
@@ -5,18 +7,22 @@ const initialState = {
       amount: 1280.00,
       lastUpdated: new Date(),
       history: [{
+        id: uuid(),
         created: false,
         updated: new Date(),
         amount: 1130.00
       }, {
+        id: uuid(),
         created: false,
         updated: new Date(),
         amount: 1280.00
       }, {
+        id: uuid(),
         created: false,
         updated: new Date(),
         amount: 1240.00
       }, {
+        id: uuid(),
         created: true,
         updated: new Date(),
         amount: 1000.00

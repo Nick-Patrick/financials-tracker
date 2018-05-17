@@ -6,9 +6,10 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
-import { updateAccountAction, deleteAccountAction, renameAccountAction } from '../../actions/accounts'
+import { updateAccountAction, deleteAccountAction, renameAccountAction, updateAccountHistoryAction } from '../../actions/accounts'
 import { LineChart } from 'react-native-svg-charts'
 import { Circle, Path } from 'react-native-svg'
+import DateTimePicker from 'react-native-modal-datetime-picker'
 
 let uiTheme = {
   palette: {
@@ -20,13 +21,21 @@ class Account extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      isDateTimePickerVisible: false,
+      accountDate: new Date(),
       renderModal: false,
       renderDeleteModal: false,
       renderRenameModal: false,
       accountNameText: null,
       accountNameError: false,
       amountText: null,
-      amountInputError: false
+      amountInputError: false,
+      historyAccountSelected: null,
+      showUpdateHistoryModal: false,
+      historyAccountDate: null,
+      historyAccountAmount: null,
+      accountHistoryAmountInput: null,
+      isHistoryDatePickerVisible: false
     }
 
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
@@ -149,11 +158,13 @@ class Account extends Component {
     )
   }
 
-  updateAccountHistory(account) {
-
+  updateAccountHistory(historyAccount) {
+    this.showUpdateHistoryModal(historyAccount)
   }
 
   renderPriceHistory(history = [], isAssets) {
+    history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
+
     return (
       <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
         <View style={{ flexDirection: 'row' }}>
@@ -161,7 +172,6 @@ class Account extends Component {
           <Subheader text={`${isAssets ? 'Asset' : 'Liability'} History`} style={{ container: { marginLeft: -10 }, text: { fontSize: 18 } }}/>
         </View>
         <Divider />
-
         { history.map((account, index) => {
           const previousAccount = history[index + 1]
 
@@ -218,12 +228,27 @@ class Account extends Component {
       if (!this.state.amountInputError) {
         this.props.dispatch(updateAccountAction(isAssets, { 
           id: account.id,
-          amount: parseFloat(this.state.amountText) 
+          amount: parseFloat(this.state.amountText),
+          date: this.state.accountDate
         }))
         
         return this.toggleModal()
       }
     }) 
+  }
+
+  showUpdateHistoryModal = (account) => {
+    this.setState({
+      historyAccountSelected: account,
+      showUpdateHistoryModal: true
+    })
+  }
+
+  hideUpdateHistoryModal = () => {
+    this.setState({
+      historyAccountSelected: null,
+      showUpdateHistoryModal: false
+    })
   }
 
   toggleModal = () => {
@@ -243,6 +268,9 @@ class Account extends Component {
       accountNameError: false
     })
   }
+
+  toggleDatePicker = () => this.setState({ isDateTimePickerVisible: !this.state.isDateTimePickerVisible })
+  toggleHistoryDatePicker = () => this.setState({ isHistoryDatePickerVisible: !this.state.isHistoryDatePickerVisible })
 
   renderDeleteModal(account, isAssets) {
     return (
@@ -352,11 +380,94 @@ class Account extends Component {
         this.props.navigator.setTitle({
           title: this.state.accountNameText
         })
+        
         return this.toggleRenameModal()
       }
-    }) 
-    
-    
+    })  
+  }
+
+  handleDatePicked (date) {
+    this.toggleDatePicker()
+    this.setState({ accountDate: date })
+  }
+
+  handleHistoryDatePicked (date) {
+    this.toggleHistoryDatePicker()
+    this.setState({ historyAccountDate: date })
+  }
+
+  renderUpdateHistoryModal(isAssets, parentAccount) {
+    const account = this.state.historyAccountSelected || {}
+    const accountDate = this.state.historyAccountDate || account.updated
+    return (
+      <View>
+        <Modal 
+          style={{ justifyContent: 'flex-end', margin: 0 }}
+          backdropOpacity={0.3}
+          backdropTransitionInTiming={100}
+          backdropTransitionOutTiming={100}
+          useNativeDriver={true}
+          onBackdropPress={this.hideUpdateHistoryModal}
+          onBackButtonPress={this.hideUpdateHistoryModal}
+          isVisible={this.state.showUpdateHistoryModal}>  
+          <View style={{ backgroundColor: COLOR.white }}>
+            <Subheader text={`Update History ${account.id}`}
+              style={{ 
+                container: [
+                  styles.modalSubheaderContainer
+                ],
+                text: styles.modalSubheaderText
+              }} />
+              <Divider />
+              <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(account.amount).toFixed(2)}` }</FormLabel>
+              <FormInput 
+                keyboardType='numeric'
+                onChangeText={text => this.state.accountHistoryAmountText = text }
+                ref={ input => this.accountHistoryAmountInput = input }
+                inputStyle={styles.textInput}
+              />
+              <Button style={{ container: { height: 60 } }} onPress={this.toggleHistoryDatePicker.bind(this)} text={ moment(accountDate).format('ddd MMM Do YYYY') } />
+              <Button accent text="Update" 
+                style={{
+                  container: {
+                    padding: 40,
+                    marginBottom: 20
+                  },
+                  text: {
+                    padding: 10,
+                    fontSize: 24,
+                    borderBottomWidth: 1,
+                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
+                    color: isAssets ? COLOR.teal500 : COLOR.red400
+                  }
+                }}
+              onPress={this.updateHistory.bind(this, isAssets, parentAccount)} />
+          </View>
+        </Modal>        
+      </View>
+    )
+  }
+
+  updateHistory(isAssets, parentAccount) {
+    console.log('1---->', this.state.accountHistoryAmountText , this.state.historyAccountSelected.amount)
+    console.log('2---->', this.state.historyAccountDate || this.state.historyAccountSelected.updated)
+    this.props.dispatch(updateAccountHistoryAction(isAssets, parentAccount, { 
+      id: this.state.historyAccountSelected.id,
+      amount: parseFloat(this.state.accountHistoryAmountText || this.state.historyAccountSelected.amount),
+      date: this.state.historyAccountDate || this.state.historyAccountSelected.updated
+    }))
+
+    this.setState({
+      accountHistoryAmountText: null,
+      historyAccountDate: null
+    })
+        
+    return this.hideUpdateHistoryModal()
+  }
+
+  getCurrentAmount(account) {
+    const mostRecent = account.history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
+    return mostRecent[0].amount
   }
 
   renderUpdateModal(account, isAssets) {
@@ -377,7 +488,7 @@ class Account extends Component {
                 text: styles.modalSubheaderText 
               }} />
             <Divider />
-            <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(account.amount).toFixed(2)}` }</FormLabel>
+            <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(this.getCurrentAmount(account)).toFixed(2)}` }</FormLabel>
             <FormLabel labelStyle={styles.labelText}>
                 New Amount:
             </FormLabel>
@@ -392,11 +503,13 @@ class Account extends Component {
               : null
             }
 
+            <Button style={{ container: { height: 60 } }} onPress={this.toggleDatePicker.bind(this)} text={ moment(this.state.accountDate).format('ddd MMM Do YYYY') } />
+
             <Button accent text={`Update ${isAssets ? 'Asset' : 'Liability'}`} 
               style={{
                 container: {
                   padding: 40,
-                  margin: 20
+                  marginBottom: 20
                 },
                 text: {
                   padding: 10,
@@ -413,20 +526,43 @@ class Account extends Component {
     )
   }
 
+  renderDatePicker () {
+    return (
+      <DateTimePicker
+        isVisible={this.state.isDateTimePickerVisible}
+        onConfirm={this.handleDatePicked.bind(this)}
+        onCancel={this.toggleDatePicker.bind(this)}
+      />
+    )
+  }
+
+  renderHistoryDatePicker () {
+    return (
+      <DateTimePicker
+        isVisible={this.state.isHistoryDatePickerVisible}
+        onConfirm={this.handleHistoryDatePicked.bind(this)}
+        onCancel={this.toggleHistoryDatePicker.bind(this)}
+      />
+    )
+  }
+
   render () {
     const { currentAccount = {}, isAssets } = this.props 
-    
+
     return (
       <ThemeProvider uiTheme = {uiTheme}>
         <ScrollView>
           <View style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
-            { this.renderAmount(currentAccount.amount, isAssets) }
+            { this.renderAmount(this.getCurrentAmount(currentAccount), isAssets) }
             { this.renderGraph(currentAccount.history, isAssets) }
             { this.renderUpdateAccount(currentAccount, isAssets)}
             { this.renderPriceHistory(currentAccount.history, isAssets) }
             { this.renderUpdateModal(currentAccount, isAssets) }
             { this.renderDeleteModal(currentAccount, isAssets) }
             { this.renderRenameModal(currentAccount, isAssets) }
+            { this.renderDatePicker() }
+            { this.renderHistoryDatePicker() }
+            { this.renderUpdateHistoryModal(isAssets, currentAccount) }
           </View>
         </ScrollView>
       </ThemeProvider>

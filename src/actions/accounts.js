@@ -14,7 +14,19 @@ const accounts = {
     return {
       type: isAssets ? 'UPDATE_ASSET' : 'UPDATE_LIABILITY',
       itemId: account.id,
-      amount: account.amount
+      amount: account.amount,
+      date: account.date
+    }
+  },
+
+  updateAccountHistoryAction(isAssets, account, historyAccount) {
+    console.log('update action', isAssets, account, historyAccount)
+    return {
+      type: isAssets ? 'UPDATE_ASSET_HISTORY' : 'UPDATE_LIABILITY_HISTORY',
+      itemId: account.id,
+      historyId: historyAccount.id,
+      amount: historyAccount.amount,
+      date: historyAccount.date
     }
   },
 
