@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
-import { View } from 'react-native'
 import { Subheader } from 'react-native-material-ui'
-import { Avatar } from 'react-native-elements'
 import styles from './styles'
 
 class AccountDifference extends Component {

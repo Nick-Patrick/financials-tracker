@@ -11,6 +11,8 @@ import DateTimePicker from 'react-native-modal-datetime-picker'
 import AmountHeader from './AmountHeader'
 import AmountGraph from './AmountGraph'
 import AccountDifference from './AccountDifference'
+import RenameModal from './RenameModal'
+import DeleteModal from './DeleteModal'
 
 let uiTheme = {
   palette: {
@@ -50,7 +52,7 @@ class Account extends Component {
   }
 
   renderPriceHistory(history = [], isAssets) {
-    history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
+    if (history && history.length) history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
 
     return (
       <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
@@ -160,6 +162,13 @@ class Account extends Component {
   toggleHistoryDatePicker = () => this.setState({ isHistoryDatePickerVisible: !this.state.isHistoryDatePickerVisible })
 
   renderDeleteModal(account, isAssets) {
+    return <DeleteModal 
+      isAssets={isAssets}
+      isVisible={this.state.renderDeleteModal}
+      handleModalHide={this.toggleDeleteModal}
+      onSubmit={this.deleteAccount.bind(this, account, isAssets)}
+    />
+
     return (
       <View>
         <Modal 
@@ -199,69 +208,21 @@ class Account extends Component {
   }
 
   renderRenameModal(account, isAssets) {
-    return (
-      <View>
-        <Modal 
-          useNativeDriver={true}
-          onBackdropPress={this.toggleRenameModal}
-          onBackButtonPress={this.toggleRenameModal}
-          isVisible={this.state.renderRenameModal}>
-          <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text={`Edit`}
-              style={{ 
-                container: [
-                  styles.modalSubheaderContainer,
-                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
-                ],
-                text: styles.modalSubheaderText 
-              }} />
-              <Divider />
-              <FormLabel labelStyle={styles.labelText}>
-                New Name:
-              </FormLabel>
-              <FormInput 
-                onChangeText={text => this.state.accountNameText = text }
-                ref={ input => this.accountNameInput = input }
-                inputStyle={styles.accountNameInput}
-                containerStyle={styles.accountNameContainer}
-              />
-              { this.state.accountNameError
-                ? <FormValidationMessage>Please enter a new name</FormValidationMessage>
-                : null
-              }
-              <Button accent text={`Rename ${isAssets ? 'Asset' : 'Liability'}`} 
-                style={{
-                  container: {
-                    padding: 40,
-                    margin: 20
-                  },
-                  text: {
-                    padding: 10,
-                    fontSize: 24,
-                    borderBottomWidth: 1,
-                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                    color: isAssets ? COLOR.teal500 : COLOR.red400
-                  }
-                }}
-              onPress={this.renameAccount.bind(this, account, isAssets)} />
-          </View>
-        </Modal>
-      </View>
-    )
+    return <RenameModal 
+      isAssets={isAssets}
+      isVisible={this.state.renderRenameModal}
+      handleModalHide={this.toggleRenameModal}
+      handleChangeText={text => this.state.accountNameText = text}
+      accountNameError={this.state.accountNameError}
+      accountNameInput={this.state.accountNameInput}
+      onSubmit={this.renameAccount.bind(this, account, isAssets)}
+    />
   }
-
-  deleteAccount(account, isAssets) {
-    this.toggleModal()
-    this.props.navigator.pop()
-    this.props.dispatch(deleteAccountAction(isAssets, account))
-  }
-
+  
   renameAccount(account, isAssets) {
     this.setState({
       accountNameError: Boolean(!this.state.accountNameText || !this.state.accountNameText.length > 0)
     }, e => {
-      if (!this.state.accountNameError) this.accountNameInput.shake()
-
       if (!this.state.accountNameError) {
         this.props.dispatch(renameAccountAction(isAssets, account, this.state.accountNameText))
         this.props.navigator.setTitle({
@@ -271,6 +232,12 @@ class Account extends Component {
         return this.toggleRenameModal()
       }
     })  
+  }
+
+  deleteAccount(account, isAssets) {
+    this.toggleModal()
+    this.props.navigator.pop()
+    this.props.dispatch(deleteAccountAction(isAssets, account))
   }
 
   handleDatePicked (date) {
@@ -351,6 +318,8 @@ class Account extends Component {
   }
 
   getCurrentAmount(account) {
+    if (!account || !account.history || !account.history.length) return
+    
     const mostRecent = account.history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
     return mostRecent[0].amount
   }
