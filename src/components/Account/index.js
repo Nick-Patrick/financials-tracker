@@ -7,9 +7,10 @@ import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
 import { updateAccountAction, deleteAccountAction, renameAccountAction, updateAccountHistoryAction } from '../../actions/accounts'
-import { LineChart } from 'react-native-svg-charts'
-import { Circle, Path } from 'react-native-svg'
 import DateTimePicker from 'react-native-modal-datetime-picker'
+import AmountHeader from './AmountHeader'
+import AmountGraph from './AmountGraph'
+import AccountDifference from './AccountDifference'
 
 let uiTheme = {
   palette: {
@@ -48,120 +49,6 @@ class Account extends Component {
     }
   }
 
-  renderAmount(amount, isAssets) {
-    return (
-      <View style={{
-        flex: 1, 
-        backgroundColor: isAssets ? COLOR.teal800 : COLOR.red600, 
-        alignSelf: 'stretch', 
-        paddingTop: 15
-      }}>
-        <Avatar
-          xlarge
-          icon={{
-            name: isAssets ? 'monetization-on' : 'money-off'
-          }}
-          overlayContainerStyle={{
-            backgroundColor: isAssets ? COLOR.teal800 : COLOR.red600
-          }}
-          containerStyle={{ opacity: 1, height: 70, padding: 0, margin: 0, flex: 1, marginBottom: 15, alignSelf: 'center' }}
-        />
-
-        <Subheader text={`£${parseFloat(amount).toFixed(2)}`} 
-          style={{
-            container: {
-              alignSelf: 'center'
-            },
-            text: {
-              color: COLOR.white,
-              lineHeight: 50,
-              fontSize: 50
-            }
-          }}
-        />
-      </View>
-    )
-  }
-
-  renderGraph(accountHistory = [], isAssets) {
-    let data = []
-    accountHistory.map(account => data.push(account.amount))
-
-    const contentInset = { top: 10, bottom: 10 }
-
-    const Decorator = ({ x, y, data }) => {
-      return data.map((value, index) => (
-        <Circle
-          key={ index }
-          cx={ x(index) }
-          cy={ y(value) }
-          r={ 2 }
-          stroke={ COLOR.white }
-          fill={ COLOR.white }
-        />
-      ))
-    }
-
-
-    const Shadow = ({ line }) => (
-      <Path
-        key={'shadow'}
-        y={2}
-        d={line}
-        fill={'none'}
-        strokeWidth={4}
-        stroke={'rgba(0, 0, 0, 0.2)'}
-      />
-    )
-
-    return (
-      <View style={{ 
-        height: 100, 
-        flexDirection: 'row',
-        backgroundColor: isAssets ? COLOR.teal800 : COLOR.red600,
-        alignSelf: 'stretch',
-        padding: 10
-      }}>
-        <LineChart
-          animate={true}
-          animationDuration={500}
-          style={{ flex: 1 }}
-          data={ data.reverse() }
-          svg={{ stroke: COLOR.white }}
-          contentInset={contentInset}>
-          <Shadow />
-          <Decorator/>
-        </LineChart>
-      </View>
-    )
-  }
-
-  getAccountDifference(oldAccount, newAccount, isAssets) {
-    if (!oldAccount || !newAccount) return null
-    const difference = newAccount.amount - oldAccount.amount
-
-    return (
-      <Subheader
-        style={{
-          container: {
-            flex: 3,
-            height: 20
-          },
-          text: {
-            lineHeight: 20,
-            fontWeight: '500',
-            color: isAssets ? (difference > 0 ? COLOR.teal300 : COLOR.red400) : (difference < 0 ? COLOR.teal300 : COLOR.red400)
-          }
-        }} 
-        text={difference > 0 ? `(+${parseFloat(difference).toFixed(2)})` : difference < 0 ? `(${parseFloat(difference).toFixed(2)})` : null} 
-      />
-    )
-  }
-
-  updateAccountHistory(historyAccount) {
-    this.showUpdateHistoryModal(historyAccount)
-  }
-
   renderPriceHistory(history = [], isAssets) {
     history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
 
@@ -176,13 +63,13 @@ class Account extends Component {
           const previousAccount = history[index + 1]
 
           return (
-            <TouchableHighlight underlayColor={COLOR.grey200} key={index} onPress={this.updateAccountHistory.bind(this, account)}>
+            <TouchableHighlight underlayColor={COLOR.grey200} key={index} onPress={this.showUpdateHistoryModal.bind(this, account)}>
               <View style={{ flex: 1, alignSelf: 'stretch', marginBottom: 1, paddingTop: 10, paddingBottom: 10, borderColor: COLOR.teal50, borderBottomWidth: 1}}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1 }}>
                       <Subheader text={account.created ? 'Initial Balance' : `Balance Updated`} style={{ container: { height: 20, flex: 4 }, text: { lineHeight: 20 } }}/>
-                      { this.getAccountDifference(previousAccount, account, isAssets) }
+                      <AccountDifference isAssets={isAssets} oldAccount={previousAccount} newAccount={account} />
                     </View>
                     <Subheader text={moment(account.updated).format('MMM D YYYY')} style={{ container: { height: 20 }, text: { lineHeight: 20, fontSize: 10, fontWeight: '200', color: COLOR.grey400 } }}/>
                   </View>
@@ -411,7 +298,7 @@ class Account extends Component {
           onBackButtonPress={this.hideUpdateHistoryModal}
           isVisible={this.state.showUpdateHistoryModal}>  
           <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text={`Update History ${account.id}`}
+            <Subheader text={`Update History`}
               style={{ 
                 container: [
                   styles.modalSubheaderContainer
@@ -449,8 +336,6 @@ class Account extends Component {
   }
 
   updateHistory(isAssets, parentAccount) {
-    console.log('1---->', this.state.accountHistoryAmountText , this.state.historyAccountSelected.amount)
-    console.log('2---->', this.state.historyAccountDate || this.state.historyAccountSelected.updated)
     this.props.dispatch(updateAccountHistoryAction(isAssets, parentAccount, { 
       id: this.state.historyAccountSelected.id,
       amount: parseFloat(this.state.accountHistoryAmountText || this.state.historyAccountSelected.amount),
@@ -553,8 +438,8 @@ class Account extends Component {
       <ThemeProvider uiTheme = {uiTheme}>
         <ScrollView>
           <View style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
-            { this.renderAmount(this.getCurrentAmount(currentAccount), isAssets) }
-            { this.renderGraph(currentAccount.history, isAssets) }
+            <AmountHeader amount={this.getCurrentAmount(currentAccount)} isAssets={isAssets} />
+            <AmountGraph accountHistory={currentAccount.history} isAssets={isAssets} />
             { this.renderUpdateAccount(currentAccount, isAssets)}
             { this.renderPriceHistory(currentAccount.history, isAssets) }
             { this.renderUpdateModal(currentAccount, isAssets) }

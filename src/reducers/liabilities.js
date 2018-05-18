@@ -1,27 +1,31 @@
 import uuid from 'uuid/v4'
 import omit from 'lodash/omit'
 
-const assets = (state = {}, action) => {
+const LIABILITYs = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_LIABILITY':
       return Object.assign({}, state, {
-        [action.itemId]: asset(state[action.itemId], action)
+        [action.itemId]: LIABILITY(state[action.itemId], action)
       })
     case 'ADD_LIABILITY':
       return Object.assign({}, state, {
-        [action.itemId]: asset(undefined, action)
+        [action.itemId]: LIABILITY(undefined, action)
       })
     case 'DELETE_LIABILITY':
       return omit(state, action.itemId)
     case 'RENAME_LIABILITY':
       return Object.assign({}, state, {
-        [action.itemId]: asset(state[action.itemId], action)
+        [action.itemId]: LIABILITY(state[action.itemId], action)
+      })
+    case 'UPDATE_LIABILITY_HISTORY':
+      return Object.assign({}, state, {
+        [action.itemId]: LIABILITY(state[action.itemId], action)
       })
     default: return state
   }
 }
 
-const asset = (state = {}, action) => {
+const LIABILITY = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_LIABILITY':
       return Object.assign({}, state, {
@@ -50,8 +54,16 @@ const asset = (state = {}, action) => {
       return Object.assign({}, state, {
         name: action.name
       })
+    case 'UPDATE_LIABILITY_HISTORY':
+      return Object.assign({}, state, {
+        history: state.history.map(account => {
+          if (account.id === action.historyId) return { id: uuid(), amount: action.amount, updated: action.date }
+
+          return account
+        })
+      })
     default: return state
   }
 }
 
-module.exports = assets
+module.exports = LIABILITYs
