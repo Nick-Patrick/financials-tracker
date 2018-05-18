@@ -37,6 +37,30 @@ const styles = StyleSheet.create({
     textAlign: 'center', 
     fontSize: 22, 
     color: COLOR.white
+  },
+
+  updateAccountContainer: {
+    paddingTop: 20, 
+    paddingBottom: 10
+  },
+
+  updateAccountButtonContainer: {
+    padding: 30, 
+    paddingLeft: 40, 
+    paddingRight: 40
+  },
+
+  updateAccountButtonAssets: {
+    backgroundColor: COLOR.teal500
+  },
+
+  updateAccountButtonLiabilities: {
+    backgroundColor: COLOR.red500
+  },
+
+  updateAccountButtonText: {
+    fontSize: 20,
+    color: COLOR.white
   }
 })
 

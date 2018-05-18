@@ -13,6 +13,9 @@ import AmountGraph from './AmountGraph'
 import AccountDifference from './AccountDifference'
 import RenameModal from './RenameModal'
 import DeleteModal from './DeleteModal'
+import UpdateModal from './UpdateModal'
+import UpdateHistoryModal from './UpdateHistoryModal'
+import PriceHistory from './PriceHistory'
 
 let uiTheme = {
   palette: {
@@ -52,6 +55,8 @@ class Account extends Component {
   }
 
   renderPriceHistory(history = [], isAssets) {
+    return <PriceHistory history={history} isAssets={isAssets} handleModal={this.showUpdateHistoryModal.bind(this)} />
+
     if (history && history.length) history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
 
     return (
@@ -90,18 +95,13 @@ class Account extends Component {
 
   renderUpdateAccount(account, isAssets) {
     return (
-      <View style={{ paddingTop: 20, paddingBottom: 10 }}>
+      <View style={ styles.updateAccountContainer }>
         <Button raised text={`Update ${isAssets ? 'asset' : 'Liability'}`} style={{
-          container: {
-            backgroundColor: isAssets ? COLOR.teal500 : COLOR.red400,
-            padding: 30, 
-            paddingLeft: 40, 
-            paddingRight: 40 
-          },
-          text: {
-            fontSize: 20,
-            color: COLOR.white
-          }
+          container: [
+            styles.updateAccountButtonContainer,
+            isAssets ? styles.updateAccountButtonAssets : styles.updateAccountButtonLiabilities
+          ],
+          text: styles.updateAccountButtonText
         }}
         onPress={this.toggleModal}/> 
       </View>
@@ -112,7 +112,6 @@ class Account extends Component {
     this.setState({
       amountInputError: Boolean(!this.state.amountText || !this.state.amountText.length > 0)
     }, e => {
-      if (!this.state.amountInputError) this.amountInput.shake()
 
       if (!this.state.amountInputError) {
         this.props.dispatch(updateAccountAction(isAssets, { 
@@ -168,43 +167,6 @@ class Account extends Component {
       handleModalHide={this.toggleDeleteModal}
       onSubmit={this.deleteAccount.bind(this, account, isAssets)}
     />
-
-    return (
-      <View>
-        <Modal 
-          useNativeDriver={true}
-          onBackdropPress={this.toggleDeleteModal}
-          onBackButtonPress={this.toggleDeleteModal}
-          isVisible={this.state.renderDeleteModal}>
-          <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text="Are you sure?"
-             style={{ 
-                container: [
-                  styles.modalSubheaderContainer,
-                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
-                ],
-                text: styles.modalSubheaderText 
-              }} />
-              <Divider />
-              <Button accent text={`Delete ${isAssets ? 'Asset' : 'Liability'}`} 
-                style={{
-                  container: {
-                    padding: 40,
-                    margin: 20
-                  },
-                  text: {
-                    padding: 10,
-                    fontSize: 24,
-                    borderBottomWidth: 1,
-                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                    color: isAssets ? COLOR.teal500 : COLOR.red400
-                  }
-                }}
-              onPress={this.deleteAccount.bind(this, account, isAssets)} />
-          </View>
-        </Modal>
-      </View>
-    )
   }
 
   renderRenameModal(account, isAssets) {
@@ -253,53 +215,18 @@ class Account extends Component {
   renderUpdateHistoryModal(isAssets, parentAccount) {
     const account = this.state.historyAccountSelected || {}
     const accountDate = this.state.historyAccountDate || account.updated
-    return (
-      <View>
-        <Modal 
-          style={{ justifyContent: 'flex-end', margin: 0 }}
-          backdropOpacity={0.3}
-          backdropTransitionInTiming={100}
-          backdropTransitionOutTiming={100}
-          useNativeDriver={true}
-          onBackdropPress={this.hideUpdateHistoryModal}
-          onBackButtonPress={this.hideUpdateHistoryModal}
-          isVisible={this.state.showUpdateHistoryModal}>  
-          <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text={`Update History`}
-              style={{ 
-                container: [
-                  styles.modalSubheaderContainer
-                ],
-                text: styles.modalSubheaderText
-              }} />
-              <Divider />
-              <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(account.amount).toFixed(2)}` }</FormLabel>
-              <FormInput 
-                keyboardType='numeric'
-                onChangeText={text => this.state.accountHistoryAmountText = text }
-                ref={ input => this.accountHistoryAmountInput = input }
-                inputStyle={styles.textInput}
-              />
-              <Button style={{ container: { height: 60 } }} onPress={this.toggleHistoryDatePicker.bind(this)} text={ moment(accountDate).format('ddd MMM Do YYYY') } />
-              <Button accent text="Update" 
-                style={{
-                  container: {
-                    padding: 40,
-                    marginBottom: 20
-                  },
-                  text: {
-                    padding: 10,
-                    fontSize: 24,
-                    borderBottomWidth: 1,
-                    borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                    color: isAssets ? COLOR.teal500 : COLOR.red400
-                  }
-                }}
-              onPress={this.updateHistory.bind(this, isAssets, parentAccount)} />
-          </View>
-        </Modal>        
-      </View>
-    )
+
+    return <UpdateHistoryModal 
+      isAssets={isAssets}
+      isVisible={this.state.showUpdateHistoryModal}
+      handleModalHide={this.hideUpdateHistoryModal}
+      accountDate={accountDate}
+      handleDatePicker={this.toggleHistoryDatePicker.bind(this)}
+      handleChangeAmount={text => this.state.accountHistoryAmountText = text}
+      accountAmountInput={input => this.accountHistoryAmountInput = input}
+      onSubmit={this.updateHistory.bind(this, isAssets, parentAccount)}
+      currentAmount={account.amount}
+    />
   }
 
   updateHistory(isAssets, parentAccount) {
@@ -319,65 +246,24 @@ class Account extends Component {
 
   getCurrentAmount(account) {
     if (!account || !account.history || !account.history.length) return
-    
+
     const mostRecent = account.history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
     return mostRecent[0].amount
   }
 
   renderUpdateModal(account, isAssets) {
-    return (
-      <View>
-        <Modal
-          useNativeDriver={true}
-          onBackdropPress={this.toggleModal}
-          onBackButtonPress={this.toggleModal}
-          isVisible={this.state.renderModal}>
-          <View style={{ backgroundColor: COLOR.white }}>
-            <Subheader text={`Update ${isAssets ? 'Asset' : 'Liability'}`}
-              style={{ 
-                container: [
-                  styles.modalSubheaderContainer,
-                  isAssets ? styles.modalSubheaderContainerAssets : styles.modalSubheaderContainerLiabilities
-                ],
-                text: styles.modalSubheaderText 
-              }} />
-            <Divider />
-            <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(this.getCurrentAmount(account)).toFixed(2)}` }</FormLabel>
-            <FormLabel labelStyle={styles.labelText}>
-                New Amount:
-            </FormLabel>
-            <FormInput 
-              keyboardType='numeric'
-              onChangeText={text => this.state.amountText = text }
-              ref={ input => this.amountInput = input }
-              inputStyle={styles.textInput}
-            />
-            { this.state.amountInputError
-              ? <FormValidationMessage>Please enter the current value of this {isAssets ? 'asset' : 'liability'} account</FormValidationMessage>
-              : null
-            }
-
-            <Button style={{ container: { height: 60 } }} onPress={this.toggleDatePicker.bind(this)} text={ moment(this.state.accountDate).format('ddd MMM Do YYYY') } />
-
-            <Button accent text={`Update ${isAssets ? 'Asset' : 'Liability'}`} 
-              style={{
-                container: {
-                  padding: 40,
-                  marginBottom: 20
-                },
-                text: {
-                  padding: 10,
-                  fontSize: 24,
-                  borderBottomWidth: 1,
-                  borderColor: isAssets ? COLOR.teal500 : COLOR.red400,
-                  color: isAssets ? COLOR.teal500 : COLOR.red400
-                }
-              }}
-              onPress={this.updateAccount.bind(this, account, isAssets)} />
-          </View>
-        </Modal>
-      </View>
-    )
+    return <UpdateModal 
+      isAssets={isAssets}
+      isVisible={this.state.renderModal}
+      handleModalHide={this.toggleModal}
+      accountDate={this.state.accountDate}
+      handleDatePicker={this.toggleDatePicker.bind(this)}
+      handleChangeAmount={text => this.state.amountText = text}
+      accountAmountInput={input => this.amountInput = input}
+      amountInputError={this.state.amountInputError}
+      currentAmount={this.getCurrentAmount(account)}
+      onSubmit={this.updateAccount.bind(this, account, isAssets)}
+    />
   }
 
   renderDatePicker () {
