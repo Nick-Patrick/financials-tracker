@@ -54,45 +54,6 @@ class Account extends Component {
     }
   }
 
-  renderPriceHistory(history = [], isAssets) {
-    return <PriceHistory history={history} isAssets={isAssets} handleModal={this.showUpdateHistoryModal.bind(this)} />
-
-    if (history && history.length) history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
-
-    return (
-      <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
-        <View style={{ flexDirection: 'row' }}>
-          <Icon name="history" style={{ paddingTop: 12, margin: 0, paddingLeft: 10 }}/>
-          <Subheader text={`${isAssets ? 'Asset' : 'Liability'} History`} style={{ container: { marginLeft: -10 }, text: { fontSize: 18 } }}/>
-        </View>
-        <Divider />
-        { history.map((account, index) => {
-          const previousAccount = history[index + 1]
-
-          return (
-            <TouchableHighlight underlayColor={COLOR.grey200} key={index} onPress={this.showUpdateHistoryModal.bind(this, account)}>
-              <View style={{ flex: 1, alignSelf: 'stretch', marginBottom: 1, paddingTop: 10, paddingBottom: 10, borderColor: COLOR.teal50, borderBottomWidth: 1}}>
-                <View style={{ flex: 1, flexDirection: 'row' }}>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', flex: 1 }}>
-                      <Subheader text={account.created ? 'Initial Balance' : `Balance Updated`} style={{ container: { height: 20, flex: 4 }, text: { lineHeight: 20 } }}/>
-                      <AccountDifference isAssets={isAssets} oldAccount={previousAccount} newAccount={account} />
-                    </View>
-                    <Subheader text={moment(account.updated).format('MMM D YYYY')} style={{ container: { height: 20 }, text: { lineHeight: 20, fontSize: 10, fontWeight: '200', color: COLOR.grey400 } }}/>
-                  </View>
-                  <View style={{ flex: 1, alignItems: 'flex-end'}}>
-                    <Subheader text={`£${parseFloat(account.amount).toFixed(2)}`} style={{ container: { height: 40 }, text: { fontSize: 18, lineHeight: 40 } }} />
-                  </View>
-                </View>
-              </View>
-            </TouchableHighlight>
-          )
-        })}
-
-      </View>
-    )
-  }
-
   renderUpdateAccount(account, isAssets) {
     return (
       <View style={ styles.updateAccountContainer }>
@@ -269,6 +230,7 @@ class Account extends Component {
   renderDatePicker () {
     return (
       <DateTimePicker
+        maximumDate={new Date()}
         isVisible={this.state.isDateTimePickerVisible}
         onConfirm={this.handleDatePicked.bind(this)}
         onCancel={this.toggleDatePicker.bind(this)}
@@ -279,6 +241,7 @@ class Account extends Component {
   renderHistoryDatePicker () {
     return (
       <DateTimePicker
+        maximumDate={new Date()}
         isVisible={this.state.isHistoryDatePickerVisible}
         onConfirm={this.handleHistoryDatePicked.bind(this)}
         onCancel={this.toggleHistoryDatePicker.bind(this)}
@@ -296,7 +259,7 @@ class Account extends Component {
             <AmountHeader amount={this.getCurrentAmount(currentAccount)} isAssets={isAssets} />
             <AmountGraph accountHistory={currentAccount.history} isAssets={isAssets} />
             { this.renderUpdateAccount(currentAccount, isAssets)}
-            { this.renderPriceHistory(currentAccount.history, isAssets) }
+            <PriceHistory history={currentAccount.history} isAssets={isAssets} handleModal={this.showUpdateHistoryModal.bind(this)} />
             { this.renderUpdateModal(currentAccount, isAssets) }
             { this.renderDeleteModal(currentAccount, isAssets) }
             { this.renderRenameModal(currentAccount, isAssets) }
