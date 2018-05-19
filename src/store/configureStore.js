@@ -1,9 +1,23 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
 import thunkMiddleware from 'redux-thunk'
-import rootReducer from '../reducers/index'
+import rootReducer from '../reducers'
+import { persistStore, persistCombineReducers } from 'redux-persist'
+import storage from 'redux-persist/es/storage'
 
-const createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore)
+const persistConfig = {
+  key: 'root',
+  storage
+}
+
+const combinedReducer = persistCombineReducers(persistConfig, rootReducer)
+
 
 export default function configureStore(initialState) {
-  return createStoreWithMiddleware(rootReducer, initialState)
+  const enhancer = compose(
+    applyMiddleware(
+      thunkMiddleware
+    )
+  )
+
+  return createStore(combinedReducer, initialState, enhancer)
 }
