@@ -6,7 +6,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import styles from './styles'
 import moment from 'moment'
 import Modal from 'react-native-modal'
-import { updateAccountAction, deleteAccountAction, renameAccountAction, updateAccountHistoryAction } from '../../actions/accounts'
+import { updateAccountAction, deleteAccountAction, renameAccountAction, updateAccountHistoryAction, removeAccountHistoryAction } from '../../actions/accounts'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import AmountHeader from './AmountHeader'
 import AmountGraph from './AmountGraph'
@@ -186,7 +186,9 @@ class Account extends Component {
       handleChangeAmount={text => this.state.accountHistoryAmountText = text}
       accountAmountInput={input => this.accountHistoryAmountInput = input}
       onSubmit={this.updateHistory.bind(this, isAssets, parentAccount)}
+      onRemove={this.removeHistory.bind(this, isAssets, parentAccount)}
       currentAmount={account.amount}
+      isInitialAccount={account.created}
     />
   }
 
@@ -205,9 +207,21 @@ class Account extends Component {
     return this.hideUpdateHistoryModal()
   }
 
-  getCurrentAmount(account) {
-    if (!account || !account.history || !account.history.length) return
+  removeHistory(isAssets, parentAccount) {
+    this.props.dispatch(removeAccountHistoryAction(isAssets, parentAccount, { id: this.state.historyAccountSelected.id }))
 
+    this.setState({
+      accountHistoryAmountText: null,
+      historyAccountDate: null
+    })
+        
+    return this.hideUpdateHistoryModal()
+  }
+
+  getCurrentAmount(account = {}) {
+    if (!account || !account.history || !account.history.length) return
+    console.log('aa', account)
+    
     const mostRecent = account.history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
     return mostRecent[0].amount
   }

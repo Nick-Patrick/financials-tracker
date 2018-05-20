@@ -20,13 +20,20 @@ const accounts = {
   },
 
   updateAccountHistoryAction(isAssets, account, historyAccount) {
-    console.log('update action', isAssets, account, historyAccount)
     return {
       type: isAssets ? 'UPDATE_ASSET_HISTORY' : 'UPDATE_LIABILITY_HISTORY',
       itemId: account.id,
       historyId: historyAccount.id,
       amount: historyAccount.amount,
       date: historyAccount.date
+    }
+  },
+
+  removeAccountHistoryAction(isAssets, account, historyAccount) {
+    return {
+      type: isAssets ? 'REMOVE_ASSET_HISTORY' : 'REMOVE_LIABILITY_HISTORY',
+      itemId: account.id,
+      historyId: historyAccount.id
     }
   },
 

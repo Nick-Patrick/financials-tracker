@@ -18,28 +18,40 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 40,
     paddingTop: 20,
-    marginBottom: 0
+    marginBottom: 0,
   },
   
   buttonText: {
     padding: 10,
     fontSize: 18,
-    borderBottomWidth: 1,
+    borderBottomWidth: 1
   },
 
   assetsButtonText: { 
-    borderColor: COLOR.teal500,
-    color: COLOR.teal500
+    borderColor: COLOR.teal900,
+    color: COLOR.teal900
   },
 
   liabilitiesButtonText: { 
-    borderColor: COLOR.red400,
-    color: COLOR.red400
+    borderColor: COLOR.red800,
+    color: COLOR.red800
+  },
+
+  buttonContainerFilled: {
+    padding: 20,
+    paddingLeft: 25,
+    paddingRight: 25,
+  },
+  
+  buttonTextFilled: {
+    padding: 0,
+    fontSize: 18,
+    color: COLOR.white
   },
 
   assetsBackground: { backgroundColor: COLOR.teal900 },
   
-  liabilitiesBackground: { backgroundColor: COLOR.red700 },
+  liabilitiesBackground: { backgroundColor: COLOR.red800 },
   
   labelText: {
     fontSize: 20,
@@ -51,6 +63,12 @@ const styles = StyleSheet.create({
   accountNameContainer: { paddingTop: 20 },
 
   accountNameInput: { fontSize: 24 },
+
+  buttonsContainer: {
+    flexDirection: 'row', 
+    justifyContent: 'space-around',
+    marginBottom: 20
+  }
 })
 
 export default styles

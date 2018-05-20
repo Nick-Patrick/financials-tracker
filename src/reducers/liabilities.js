@@ -4,23 +4,32 @@ import omit from 'lodash/omit'
 const LIABILITYs = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_LIABILITY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: LIABILITY(state[action.itemId], action)
-      })
+      }
     case 'ADD_LIABILITY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: LIABILITY(undefined, action)
-      })
+      }
     case 'DELETE_LIABILITY':
       return omit(state, action.itemId)
     case 'RENAME_LIABILITY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: LIABILITY(state[action.itemId], action)
-      })
+      }
     case 'UPDATE_LIABILITY_HISTORY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: LIABILITY(state[action.itemId], action)
-      })
+      }
+    case 'REMOVE_LIABILITY_HISTORY':
+      return {
+        ...state,
+        [action.itemId]: LIABILITY(state[action.itemId], action)
+      }
     default: return state
   }
 }
@@ -28,7 +37,8 @@ const LIABILITYs = (state = {}, action) => {
 const LIABILITY = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_LIABILITY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         amount: action.amount,
         updated: new Date(),
         history: [].concat([{
@@ -37,7 +47,7 @@ const LIABILITY = (state = {}, action) => {
           amount: action.amount,
           created: false
         }], state.history)
-      })
+      }
     case 'ADD_LIABILITY':
       return {
         name: action.name,
@@ -51,17 +61,23 @@ const LIABILITY = (state = {}, action) => {
         }]
       }
     case 'RENAME_LIABILITY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         name: action.name
-      })
+      }
     case 'UPDATE_LIABILITY_HISTORY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         history: state.history.map(account => {
           if (account.id === action.historyId) return { id: uuid(), amount: action.amount, updated: action.date }
-
           return account
         })
-      })
+      }
+    case 'REMOVE_LIABILITY_HISTORY':
+      return {
+        ...state,
+        history: state.history.filter(account => account.id === action.historyId)
+      }
     default: return state
   }
 }

@@ -33,6 +33,8 @@ class AmountGraph extends Component {
   render() {
     const { accountHistory = [], isAssets } = this.props
     const data = []
+    if (!accountHistory.length) return null
+
     accountHistory.map(account => data.push(account.amount))
 
     return (

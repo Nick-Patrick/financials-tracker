@@ -1,26 +1,36 @@
 import uuid from 'uuid/v4'
 import omit from 'lodash/omit'
+import drop from 'lodash/drop'
 
 const assets = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_ASSET':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: asset(state[action.itemId], action)
-      })
+      }
     case 'ADD_ASSET':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: asset(undefined, action)
-      })
+      }
     case 'DELETE_ASSET':
       return omit(state, action.itemId)
     case 'RENAME_ASSET':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: asset(state[action.itemId], action)
-      })
+      }
     case 'UPDATE_ASSET_HISTORY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         [action.itemId]: asset(state[action.itemId], action)
-      })
+      }
+    case 'REMOVE_ASSET_HISTORY':
+      return {
+        ...state,
+        [action.itemId]: asset(state[action.itemId], action)
+      }
     default: return state
   }
 }
@@ -28,7 +38,8 @@ const assets = (state = {}, action) => {
 const asset = (state = {}, action) => {
   switch (action.type) {
     case 'UPDATE_ASSET':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         amount: action.amount,
         updated: new Date(),
         history: [].concat([{
@@ -37,7 +48,7 @@ const asset = (state = {}, action) => {
           amount: action.amount,
           created: false
         }], state.history)
-      })
+      }
     case 'ADD_ASSET':
       return {
         name: action.name,
@@ -51,17 +62,23 @@ const asset = (state = {}, action) => {
         }]
       }
     case 'RENAME_ASSET':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         name: action.name
-      })
+      }
     case 'UPDATE_ASSET_HISTORY':
-      return Object.assign({}, state, {
+      return {
+        ...state,
         history: state.history.map(account => {
           if (account.id === action.historyId) return { id: uuid(), amount: action.amount, updated: action.date }
-
           return account
         })
-      })
+      }
+    case 'REMOVE_ASSET_HISTORY':
+      return {
+        ...state,
+        history: state.history.filter(account => account.id === action.historyId)
+      }
     default: return state
   }
 }

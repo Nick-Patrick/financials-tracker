@@ -7,6 +7,22 @@ import styles from './styles'
 import moment from 'moment'
 
 class UpdateHistoryModal extends Component {
+  renderRemoveButton (isAssets, onRemove, isInitialAccount) {
+    if (isInitialAccount) return null
+
+    return (
+      <Button accent text="Remove" 
+        style={{
+          container: styles.buttonContainer,
+          text: [
+            styles.buttonText,
+            isAssets ? styles.assetsButtonText : styles.liabilitiesButtonText
+          ]
+        }}
+        onPress={onRemove} />
+      )
+  }
+
   render () {
     const { 
       isAssets, 
@@ -17,7 +33,9 @@ class UpdateHistoryModal extends Component {
       handleChangeAmount, 
       accountAmountInput, 
       onSubmit,
-      currentAmount
+      currentAmount,
+      onRemove,
+      isInitialAccount
     } = this.props
 
     return (
@@ -49,15 +67,20 @@ class UpdateHistoryModal extends Component {
                 inputStyle={styles.textInput}
               />
               <Button style={{ container: { height: 60 } }} onPress={handleDatePicker} text={ moment(accountDate).format('ddd MMM Do YYYY') } />
-              <Button accent text="Update" 
-                style={{
-                  container: styles.buttonContainer,
-                  text: [
-                    styles.buttonText,
-                    isAssets ? styles.assetsButtonText : styles.liabilitiesButtonText
-                  ]
-                }}
-              onPress={onSubmit} />
+              <View style={ styles.buttonsContainer }>
+
+                { this.renderRemoveButton(isAssets, onRemove, isInitialAccount) }
+                
+                <Button accent text="Update" 
+                  style={{
+                    container: [
+                      styles.buttonContainerFilled,
+                      isAssets ? styles.assetsBackground : styles.liabilitiesBackground
+                    ],
+                    text: styles.buttonTextFilled
+                  }}
+                onPress={onSubmit} />
+              </View>
           </View>
         </Modal>        
       </View>

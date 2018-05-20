@@ -9,8 +9,9 @@ import moment from 'moment'
 
 class PriceHistory extends Component {
   render () {
-    let { history, isAssets, handleModal } = this.props
-    if (history && history.length) history = history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
+    let { history = [], isAssets, handleModal } = this.props
+    if (!history.length) return null
+    history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
 
     return (
       <View style={{ flex: 1, paddingRight: 20, alignSelf: 'stretch' }}>
@@ -19,7 +20,7 @@ class PriceHistory extends Component {
           <Subheader text={`${isAssets ? 'Asset' : 'Liability'} History`} style={{ container: { marginLeft: -10 }, text: { fontSize: 18 } }}/>
         </View>
         <Divider />
-        { history.map((account, index) => {
+        { history.map((account = {}, index) => {
           const previousAccount = history[index + 1]
 
           return (
