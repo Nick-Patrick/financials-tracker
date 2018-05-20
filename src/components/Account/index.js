@@ -219,8 +219,7 @@ class Account extends Component {
   }
 
   getCurrentAmount(account = {}) {
-    if (!account || !account.history || !account.history.length) return
-    console.log('aa', account)
+    if (!account || !account.history || !account.history.length) return 0.00
     
     const mostRecent = account.history.sort((b, a) => new Date(a.updated) - new Date(b.updated))
     return mostRecent[0].amount

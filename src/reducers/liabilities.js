@@ -76,7 +76,7 @@ const LIABILITY = (state = {}, action) => {
     case 'REMOVE_LIABILITY_HISTORY':
       return {
         ...state,
-        history: state.history.filter(account => account.id === action.historyId)
+        history: state.history.filter(account => account.id !== action.historyId)
       }
     default: return state
   }

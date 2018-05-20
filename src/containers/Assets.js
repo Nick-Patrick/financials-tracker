@@ -154,6 +154,7 @@ class AssetsContainer extends Component {
 
 function mapStateToProps(state) {
   const { assets } = state
+  console.log('assets', assets)
   return {
     assets
   }
