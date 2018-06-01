@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 import { View, Text } from 'react-native'
 import { COLOR, Subheader } from 'react-native-material-ui'
 import styles from './styles'
+import currency from '../../utils/currency'
 
 class reportsHeader extends Component {
   getAccountsTotal (assets, liabilities) {
     const assetsTotal = this.getAccountsTotalByType(assets)
     const liabilitiesTotal = this.getAccountsTotalByType(liabilities)
 
-    return `£${parseFloat(assetsTotal - liabilitiesTotal).toFixed(2)}`
+    return `${currency.getCurrency()}${parseFloat(assetsTotal - liabilitiesTotal).toFixed(2)}`
   }
 
   getAccountsTotalByType (accounts) {

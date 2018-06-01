@@ -5,6 +5,7 @@ import { FormLabel, FormInput, FormValidationMessage } from 'react-native-elemen
 import Modal from 'react-native-modal'
 import styles from './styles'
 import moment from 'moment'
+import currency from '../../../utils/currency'
 
 class UpdateHistoryModal extends Component {
   renderRemoveButton (isAssets, onRemove, isInitialAccount) {
@@ -59,7 +60,7 @@ class UpdateHistoryModal extends Component {
                 text: styles.headerText 
               }} />
               <Divider />
-              <FormLabel labelStyle={styles.labelText}>{ `Current Amount: £${parseFloat(currentAmount).toFixed(2)}` }</FormLabel>
+              <FormLabel labelStyle={styles.labelText}>{ `Current Amount: ${currency.getCurrency()}${parseFloat(currentAmount).toFixed(2)}` }</FormLabel>
               <FormInput 
                 keyboardType='numeric'
                 onChangeText={handleChangeAmount}

@@ -25,6 +25,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.grey600
   },
 
+  currencyModalHeaderContainer: {
+    backgroundColor: COLOR.white,
+    paddingTop: 30,
+    paddingBottom: 20
+  },
+
+  currencyModalHeaderText: {
+    color: COLOR.grey700
+  },
+
+  currencyButtonContainer: {
+    height: 80
+  },
+
+  currencyButtonText: {
+    color: COLOR.grey600,
+    padding: 10,
+    borderColor: COLOR.grey600,
+    borderBottomWidth: 1,
+    fontSize: 20
+  },
+
   modalSubheaderContainerAssets: {
     backgroundColor: COLOR.teal500
   },

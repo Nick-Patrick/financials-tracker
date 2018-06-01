@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text } from 'react-native'
 import { COLOR, Subheader } from 'react-native-material-ui'
 import styles from './styles'
+import currency from '../../utils/currency'
 
 class accountsHeader extends Component {
   getAccountsTotal (accounts) {
@@ -12,7 +13,7 @@ class accountsHeader extends Component {
       if (account.amount) totalAmount += account.amount
     })
 
-    return `£${parseFloat(totalAmount).toFixed(2)}`
+    return `${currency.getCurrency()}${parseFloat(totalAmount).toFixed(2)}`
   }
 
   capitalize(string = '') {

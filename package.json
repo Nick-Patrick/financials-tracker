@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "AsyncStorage": "^0.1.5",
     "immutability-helper": "^2.7.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.1",

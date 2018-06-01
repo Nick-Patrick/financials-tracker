@@ -6,6 +6,7 @@ import Modal from 'react-native-modal'
 import styles from './styles'
 import AccountDifference from '../AccountDifference'
 import moment from 'moment'
+import currency from '../../../utils/currency'
 
 class PriceHistory extends Component {
   render () {
@@ -35,7 +36,7 @@ class PriceHistory extends Component {
                     <Subheader text={moment(account.updated).format('MMM D YYYY')} style={{ container: { height: 20 }, text: { lineHeight: 20, fontSize: 10, fontWeight: '200', color: COLOR.grey400 } }}/>
                   </View>
                   <View style={{ flex: 1, alignItems: 'flex-end'}}>
-                    <Subheader text={`£${parseFloat(account.amount).toFixed(2)}`} style={{ container: { height: 40 }, text: { fontSize: 18, lineHeight: 40 } }} />
+                    <Subheader text={`${currency.getCurrency()}${parseFloat(account.amount).toFixed(2)}`} style={{ container: { height: 40 }, text: { fontSize: 18, lineHeight: 40 } }} />
                   </View>
                 </View>
               </View>
