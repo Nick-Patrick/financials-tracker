@@ -8,15 +8,13 @@ class AccountList extends Component {
   render () {
     const { accountType, accounts } = this.props 
     const isAssets = accountType === 'assets'
-    console.log(1)
+
     return (
       <ScrollView>
         {
           Object.keys(accounts).map(accountKey => {
-            console.log(3, accountKey)
             let account = accounts[accountKey]
-            account.id = accountKey
-            console.log(4, account.id)
+            // account.id = accountKey
 
             return (
               <TouchableHighlight key={accountKey} onPress={this.goToAccount.bind(this, account, isAssets)}>

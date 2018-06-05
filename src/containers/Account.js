@@ -17,8 +17,7 @@ class AccountContainer extends Component {
     }]
   }
 
-  render () { 
-    console.log('account page ---> ', this.props.account.id)       
+  render () {        
     return (
       <Account 
         {...this.props} 

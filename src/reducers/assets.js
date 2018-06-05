@@ -59,6 +59,7 @@ const asset = (state = {}, action) => {
     case 'ADD_ASSET':
       return update (state, {
         $set: {
+          id: action.itemId,
           name: action.name,
           amount: action.amount,
           updated: new Date(),
