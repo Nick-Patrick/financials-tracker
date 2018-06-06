@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import { Subheader } from 'react-native-material-ui'
 import { Avatar } from 'react-native-elements'
 import styles from './styles'
+import currency from '../../../utils/currency'
 
 class AmountHeader extends Component {
   render() {
@@ -20,7 +21,7 @@ class AmountHeader extends Component {
           containerStyle={ styles.avatarContainer }
         />
 
-        <Subheader text={`£${parseFloat(amount).toFixed(2)}`} 
+        <Subheader text={`${currency.getCurrency()}${parseFloat(amount).toFixed(2)}`} 
           style={{
             container: styles.headerContainer,
             text: styles.headerText

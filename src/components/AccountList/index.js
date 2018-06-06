@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableHighlight } from 'react-native'
 import { ListItem, Subheader, COLOR } from 'react-native-material-ui'
 import styles from './styles'
 import moment from 'moment'
+import currency from '../../utils/currency'
 
 class AccountList extends Component {
   render () {
@@ -29,7 +30,7 @@ class AccountList extends Component {
                   </View>
                   <View style={{ flex: 3, alignItems: 'flex-end', justifyContent: 'space-around', paddingRight: 20, flexDirection: 'column' }}>
                     <View style={{ flex: 1 }}>
-                      <Subheader text={ `£${parseFloat(account.amount).toFixed(2)}` } style={{ text: { lineHeight: 50, fontSize: 26 } }}/>
+                      <Subheader text={ `${currency.getCurrency()}${parseFloat(account.amount).toFixed(2)}` } style={{ text: { lineHeight: 50, fontSize: 26 } }}/>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Subheader text='+2.3%' style={{ text: { fontSize: 13 } }}/>

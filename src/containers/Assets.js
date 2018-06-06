@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, ScrollView } from 'react-native'
 import { COLOR, ThemeProvider, BottomNavigation, ActionButton, ListItem, Subheader, Divider, Button } from 'react-native-material-ui'
-import { FormLabel, FormInput, FormValidationMessage } from 'react-native-elements'
+import { FormLabel, FormInput, FormValidationMessage, ButtonGroup } from 'react-native-elements'
 import { connect } from 'react-redux'
 import AccountsHeader from '../components/accountsHeader'
 import AccountList from '../components/AccountList'
@@ -9,6 +9,7 @@ import Modal from 'react-native-modal'
 import styles from '../components/Account/styles'
 import addAccountStyles from '../components/AddAccount/styles'
 import { addAccountAction } from '../actions/accounts'
+import currency from '../utils/currency'
 
 const uiTheme = {
   palette: {
@@ -31,14 +32,30 @@ class AssetsContainer extends Component {
     super(props)
     this.state = {
       renderModal: false,
+      renderCurrencyModal: false,
       nameText: null,
       nameInputError: false,
       amountText: null,
-      amountInputError: false
+      amountInputError: false,
+      currencyIndex: currency.getCurrencyIndex()
     }
+
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
   }
 
   static navigatorStyle = navStyle
+
+  onNavigatorEvent (event) { 
+    if (event.type == 'NavBarButtonPress') {
+      if (event.id == 'editCurrency') this.toggleCurrencyModal()
+    }
+  }
+
+  toggleCurrencyModal = () => {
+    this.setState({
+      renderCurrencyModal: !this.state.renderCurrencyModal
+    })
+  }
 
   toggleModal = () => {
     this.setState({ 
@@ -67,6 +84,39 @@ class AssetsContainer extends Component {
         return this.toggleModal()
       }
     }) 
+  }
+
+  renderCurrencyModal() {
+    return (
+      <View>
+        <Modal 
+          useNativeDriver={true}
+          onBackdropPress={this.toggleCurrencyModal}
+          onBackButtonPress={this.toggleCurrencyModal}
+          isVisible={this.state.renderCurrencyModal}>
+          <View style={addAccountStyles.modalContainer}>
+            <Subheader text="Set Currency"
+              style={{
+                container: [addAccountStyles.modalHeaderContainer, styles.currencyModalHeaderContainer],
+                text: [addAccountStyles.modalHeaderText, styles.currencyModalHeaderText]
+              }} />
+            <ButtonGroup
+              onPress={this.setCurrencyIndex.bind(this)}
+              selectedIndex={this.state.currencyIndex}
+              buttons={['$', '£', '€', '₹', '¥']}
+              containerStyle={{ height: 60, marginBottom: 10 }}
+              textStyle={{ fontSize: 30 }}
+            />
+          </View>
+        </Modal>
+      </View>
+    )
+  }
+
+  setCurrencyIndex(currencyIndex) {
+    this.setState({ currencyIndex })
+    currency.setCurrencyIndex(currencyIndex)
+    setTimeout(() => this.toggleCurrencyModal(), 200)
   }
 
   renderAddAccountModal(isAssets) {
@@ -146,6 +196,7 @@ class AssetsContainer extends Component {
             style={{container: {flex: 1, backgroundColor: COLOR.teal500} }}
           />
           { this.renderAddAccountModal(true) }
+          { this.renderCurrencyModal() }
         </View>
       </ThemeProvider>
     )
