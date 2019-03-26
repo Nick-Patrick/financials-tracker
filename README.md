@@ -1,4 +1,4 @@
-# financials-tracker
+# Financials Tracker (WIP)
 React Native App for storing and tracking assets / liabilities
 
 - Add assets / liabilities.
